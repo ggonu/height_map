@@ -32,9 +32,15 @@ void MappingHeightMap::updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr
   }
 }
 
+<<<<<<< HEAD
 float MappingHeightMap::getCellSize() const {
   return cell_size_;
 }
+=======
+// float MappingHeightMap::getCellSize() const {
+//   return cell_size_;
+// }
+>>>>>>> d2a2c54e82d6534755944fd3e910e42ee1781919
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr MappingHeightMap::getHeightMap() const {
   return height_map_cloud_;

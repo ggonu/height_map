@@ -29,7 +29,11 @@ class MappingHeightMap {
    * @brief Returns the size of each cell in the height map.
    * @return cell_size_
    */
+<<<<<<< HEAD
   float getCellSize() const;
+=======
+  // float getCellSize() const;
+>>>>>>> d2a2c54e82d6534755944fd3e910e42ee1781919
 
   /**
    * @brief Get the generated 2.5D height map.
