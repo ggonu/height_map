@@ -21,11 +21,11 @@ class HeightMap {
   /**
    * @brief Grid cell structure
    * @param height_ height of the cell
-   * @param points points in the cell
+   * @param points_ points in the cell
    */
   struct GridCell {
     float height_;
-    std::vector<pcl::PointXYZ> points;
+    std::vector<pcl::PointXYZ> points_;
 
     void checkHeight(const pcl::PointXYZ& point) {
       if (point.z > height_) {
