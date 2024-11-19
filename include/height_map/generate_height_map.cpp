@@ -15,7 +15,12 @@ void HeightMap::gridifyCloud(
   const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud,
   const pcl::PointCloud<pcl::PointXYZ>::Ptr& oCloud,
   float cell_size) {
-  // TODO: Implement this function
+
+  if (iCloud->empty()) {
+    std::cout << "[WARNING]: Input cloud is empty" << std::endl;
+    return;
+  }
+
   std::map<std::pair<int, int>, GridCell> grid_cell;
   for (const auto& point : iCloud->points) {
     int x_idx = static_cast<int>(std::floor(point.x / cell_size));

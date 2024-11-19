@@ -31,6 +31,7 @@ include_directories(
 
 add_library(${PROJECT_NAME}
   include/${PROJECT_NAME}/generate_height_map.cpp
+  include/${PROJECT_NAME}/mapping_height_map.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -45,6 +46,19 @@ target_link_libraries(height_map_test_node
   ${PCL_LIBRARIES}
 )
 
+add_executable(height_map_node src/height_map_node.cpp)
+target_link_libraries(height_map_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
+install(TARGETS ${PROJECT_NAME} height_map_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
 install(TARGETS ${PROJECT_NAME} height_map_test_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -54,4 +68,5 @@ install(TARGETS ${PROJECT_NAME} height_map_test_node
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
+
 

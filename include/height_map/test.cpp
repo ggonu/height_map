@@ -32,8 +32,14 @@ int main(int argc, char** argv) {
   cloud->points.push_back(pcl::PointXYZ(3.0, 3.0, 4.0));
   cloud->points.push_back(pcl::PointXYZ(3.1, 3.0, 5.0));
 
+  cloud->points.push_back(pcl::PointXYZ(1.3, 1.1, 1.8));
+  cloud->points.push_back(pcl::PointXYZ(1.6, 1.8, 3.0));
+  cloud->points.push_back(pcl::PointXYZ(2.7, 2.6, 1.2));
+  cloud->points.push_back(pcl::PointXYZ(3.7, 3.2, 4.5));
+  cloud->points.push_back(pcl::PointXYZ(3.1, 3.0, 5.6));
+
   // Set the grid cell size
-  float cell_size = 1.0;
+  float cell_size = 0.1;
 
   // Create an instance of HeightMap
   HeightMap height_map(cell_size);

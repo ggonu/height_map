@@ -1,36 +1,55 @@
+/**
+ * @file height_map_node.cpp
+ * @brief Proto version of the height_map package
+ * @date 2024-11-19
+ * @author ggonu
+ */
 #include <ros/ros.h>
 
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-#include <geometry_msgs/Point.h>
-#include <grid_map_msgs/GridMap.h>
 
-#include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
 
-// #include <opencv2/core.hpp>
+#include "height_map/mapping_height_map.hpp"
+
+MappingHeightMap* mapping_height_map;
+
+void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::fromROSMsg(*msg, *cloud);
+
+  mapping_height_map->updateHeightMap(cloud);
+}
 
 
-class HeightMapNode {
-public:
-    HeightMapNode(ros::NodeHandle& nh) {
-        point_sub_ = nh.subscribe("/d435i_cloud", 1, &HeightMapNode::pointCallback, this);
-        height_map_pub_ = nh.advertise<grid_map_msgs::GridMap>("/height_map", 1);
-    }
+int main(int argc, char** argv) {
+  ros::init(argc, argv, "height_map_node");
+  ros::NodeHandle nh;
 
-private:
-    void pointCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
-        pcl::PointCloud<pcl::PointXYZ> cloud;
-        pcl::fromROSMsg(*msg, cloud);
+  mapping_height_map = new MappingHeightMap(0.1);
+  
+  ros::Subscriber sub = nh.subscribe("/velodyne_points", 1, cloudCallback);
 
-        sensor_msgs::PointCloud2 height_map;
-        pcl::toROSMsg(cloud, height_map);
-        height_map.header.frame_id = "camera_link";
-        height_map_pub_.publish(height_map);
-    }
+  ros::Publisher pub = nh.advertise<sensor_msgs::PointCloud2>("/height_map_cloud", 1);
 
-    ros::Subscriber point_sub_;
-    ros::Publisher height_map_pub_;
-};
+  ros::Rate rate(1.0);
+  while (ros::ok()) {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr height_map_cloud = mapping_height_map->getHeightMap();
+    sensor_msgs::PointCloud2 output;
+    pcl::toROSMsg(*mapping_height_map->getHeightMap(), output);
+    output.header.frame_id = "map";
+    output.header.stamp = ros::Time::now();
+    pub.publish(output);
+
+    ros::spinOnce();
+    rate.sleep();
+  }
+
+  delete  mapping_height_map;
+  return 0;
+}
+
