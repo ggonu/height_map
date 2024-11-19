@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /PointCloud21
+        - /PointCloud21/Status1
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz/Selection
@@ -73,12 +73,20 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 1
+      Size (m): 0.10000000149011612
       Style: Boxes
       Topic: /height_map_test_output
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /height_map_test_markers
+      Name: MarkerArray
+      Namespaces:
+        height_map_test_cells: true
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -108,7 +116,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 18.524991989135742
+      Distance: 12.263301849365234
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -124,9 +132,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7203978896141052
+      Pitch: 0.48039817810058594
       Target Frame: <Fixed Frame>
-      Yaw: 2.0153982639312744
+      Yaw: 2.3203999996185303
     Saved: ~
 Window Geometry:
   Displays:
