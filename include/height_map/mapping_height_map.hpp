@@ -5,6 +5,7 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/common/common.h>
 
 #include <vector>
 #include <limits>
@@ -25,11 +26,15 @@ class MappingHeightMap {
    */
   void updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
 
+  void fillHeightMapInteriors();
+
   /**
    * @brief Interpolates the height map.
    * @param iCloud Input point cloud to interpolate the height map.
    */
-  void interpolation(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
+  float interpolateHeight(float x, float y);
+
+  bool isPointInsideHull(float x, float y) const;
 
   /**
    * @brief Returns the size of each cell in the height map.
