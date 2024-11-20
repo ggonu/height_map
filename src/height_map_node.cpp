@@ -78,7 +78,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
 
   for (const auto& point : height_map_cloud->points) {
     visualization_msgs::Marker marker;
-    marker.header.frame_id = "camera_depth_optical_frame";
+    marker.header.frame_id = msg->header.frame_id;
     marker.header.stamp = ros::Time::now();
     marker.ns = "height_map";
     marker.id = id++;
