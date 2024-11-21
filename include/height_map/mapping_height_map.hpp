@@ -6,6 +6,9 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/common.h>
+#include <pcl/features/normal_3d.h>
+
+#include <Eigen/Dense>
 
 #include <vector>
 #include <limits>
@@ -25,6 +28,7 @@ class MappingHeightMap {
    * @param iCloud Input point cloud to update the height map.
    */
   void updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
+  void resetHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
 
   void fillHeightMapInteriors();
 
@@ -48,12 +52,13 @@ class MappingHeightMap {
    */
   pcl::PointCloud<pcl::PointXYZ>::Ptr getHeightMap() const;
 
+  Eigen::Vector3f calculatePlaneNormal() const;
+
  private:
   HeightMap height_map_;
   float cell_size_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr height_map_cloud_;
 };
-
 
 
 #endif // MAPPING_HEIGHT_MAP_HPP_

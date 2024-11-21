@@ -58,7 +58,7 @@ void HeightMap::gridifyCloud(
       const GridCell& grid_cell = cell.second;
 
       std::cout << "Cell (" << x_idx << ", " << y_idx << ")" << std::endl;
-      std::cout << "Height: " << grid_cell.height_ << std::endl;
+      std::cout << "  Height: " << grid_cell.height_ << std::endl;
   }
   #endif
 }

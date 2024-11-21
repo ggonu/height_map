@@ -9,6 +9,8 @@
 
 #include "height_map/mapping_height_map.hpp"
 
+// #define PERIOD
+
 // Create a global instance of MappingHeightMap with a cell size of 1.0
 MappingHeightMap mapping_height_map(0.03);  // Adjust the cell size as needed
 
@@ -114,11 +116,15 @@ int main(int argc, char** argv)
   // Subscribe to the point cloud topic
   ros::Subscriber point_cloud_sub = nh.subscribe("/d435i_cloud", 1, pointCloudCallback); // /plane_seg/hull_cloud
 
-  ros::Rate rate(1.0);
-  while (ros::ok()) {
-    ros::spinOnce();
-    rate.sleep();
-  }
+  #ifdef PERIOD
+    ros::Rate rate(1.0);
+    while (ros::ok()) {
+      ros::spinOnce();
+      rate.sleep();
+    }
+  #else
+    ros::spin();
+  #endif
 
   return 0;
 }
