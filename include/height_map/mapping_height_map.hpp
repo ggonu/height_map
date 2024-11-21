@@ -3,6 +3,7 @@
 
 #include "generate_height_map.hpp"
 
+#include <pcl/common/pca.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/common.h>
@@ -21,10 +22,10 @@ class MappingHeightMap {
 
   /**
    * @brief Updates the height map with the given point cloud.
-   * 
+   *
    * This function takes an input point cloud and updates the height map by
    * gridifying the point cloud and then updating the height points.
-   * 
+   *
    * @param iCloud Input point cloud to update the height map.
    */
   void updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
@@ -52,7 +53,7 @@ class MappingHeightMap {
    */
   pcl::PointCloud<pcl::PointXYZ>::Ptr getHeightMap() const;
 
-  Eigen::Vector3f calculatePlaneNormal() const;
+  std::pair<Eigen::Vector3f, Eigen::Vector3f> calculatePlaneProperties();
 
  private:
   HeightMap height_map_;

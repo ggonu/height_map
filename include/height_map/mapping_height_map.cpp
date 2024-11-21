@@ -71,8 +71,17 @@ void MappingHeightMap::fillHeightMapInteriors() {
 }
 
 float MappingHeightMap::interpolateHeight(float x, float y) {
+  auto [centroid, orientation] = calculatePlaneProperties();
+
+  #ifdef DEBUG
+    std::cout << "Centroid: " << centroid.transpose() << std::endl;
+    std::cout << "Orientation: " << orientation.transpose() << std::endl;
+  #endif
+
+  // Find the closest point to (x, y)
   float min_distance = std::numeric_limits<float>::max();
   float interpolated_height = 0.0f;
+
   for (const auto& point : height_map_cloud_->points) {
     float distance = std::sqrt(std::pow(point.x - x, 2) + std::pow(point.y - y, 2));
     if (distance < min_distance) {
@@ -102,32 +111,19 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr MappingHeightMap::getHeightMap() const {
   return height_map_cloud_;
 }
 
-Eigen::Vector3f MappingHeightMap::calculatePlaneNormal() const {
-  if (height_map_cloud_->points.empty()) {
-    ROS_WARN("Height map cloud is empty. Cannot calculate plane normal.");
-    return Eigen::Vector3f(0.0, 0.0, 1.0);
+std::pair<Eigen::Vector3f, Eigen::Vector3f> MappingHeightMap::calculatePlaneProperties() {
+  if (height_map_cloud_->empty()) {
+    ROS_WARN("Height map cloud is empty. Cannot calculate plane properties.");
+    return {Eigen::Vector3f(0.0, 0.0, 0.0), Eigen::Vector3f(0.0, 0.0, 1.0)};
   }
+  Eigen::Vector4f centroid;
+  pcl::compute3DCentroid(*height_map_cloud_, centroid);
 
-  pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-  ne.setInputCloud(height_map_cloud_);
-  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
-  ne.setSearchMethod(tree);
+  pcl::PCA<pcl::PointXYZ> pca;
+  pca.setInputCloud(height_map_cloud_);
 
-  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
-  ne.setKSearch(16);
-  ne.compute(*cloud_normals);
+  Eigen::Matrix3f eigen_vectors = pca.getEigenVectors();
+  Eigen::Vector3f plane_orientation = eigen_vectors.col(0);
 
-  Eigen::Vector3f normal(0.0, 0.0, 0.0);
-  for (const auto& n : cloud_normals->points) {
-    normal += Eigen::Vector3f(n.normal_x, n.normal_y, n.normal_z);
-  }
-  normal /= static_cast<float>(cloud_normals->points.size());
-
-  normal.normalize();
-
-  #ifdef DEBUG
-    std::cout << "Plane normal: " << normal.transpose() << std::endl;
-  #endif
-
-  return normal;
+  return  {centroid.head<3>(), plane_orientation};
 }
