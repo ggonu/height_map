@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <limits>
+#include <map>
 
 
 class MappingHeightMap {
@@ -28,8 +29,8 @@ class MappingHeightMap {
    *
    * @param iCloud Input point cloud to update the height map.
    */
-  void updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
-  void resetHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud);
+  void updateHeightMap(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud);
+  void resetHeightMap(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud);
 
   void fillHeightMapInteriors();
 
@@ -53,7 +54,13 @@ class MappingHeightMap {
    */
   pcl::PointCloud<pcl::PointXYZ>::Ptr getHeightMap() const;
 
+  /**
+   * @brief Calculate the properties of the plane.
+   * @return A pair of centroid and orientation of the plane.
+   */
   std::pair<Eigen::Vector3f, Eigen::Vector3f> calculatePlaneProperties();
+
+  std::map<uint32_t, pcl::PointCloud<pcl::PointXYZRGB>::Ptr> segmentPlanes(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud);
 
  private:
   HeightMap height_map_;

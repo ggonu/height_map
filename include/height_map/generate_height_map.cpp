@@ -12,8 +12,8 @@ HeightMap::HeightMap(float cell_size) : cell_size_(cell_size) {}
 HeightMap::~HeightMap() {}
 
 void HeightMap::gridifyCloud(
-  const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud,
-  const pcl::PointCloud<pcl::PointXYZ>::Ptr& oCloud,
+  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud,
+  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& oCloud,
   float cell_size) {
 
   if (iCloud->empty()) {
@@ -42,7 +42,7 @@ void HeightMap::gridifyCloud(
     const GridCell& grid_cell = cell.second;
 
 
-    pcl::PointXYZ p;
+    pcl::PointXYZRGB p;
     p.x = x_idx * cell_size;
     p.y = y_idx * cell_size;
     p.z = grid_cell.height_;

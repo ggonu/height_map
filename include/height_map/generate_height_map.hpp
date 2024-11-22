@@ -27,7 +27,7 @@ class HeightMap {
     float height_;
     std::vector<pcl::PointXYZ> points_;
 
-    void checkHeight(const pcl::PointXYZ& point) {
+    void checkHeight(const pcl::PointXYZRGB& point) {
       if (point.z > height_) {
         height_ = point.z;
       }
@@ -41,8 +41,8 @@ class HeightMap {
    * @param cell_size size of cell
    */
   void gridifyCloud(
-    const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud,
-    const pcl::PointCloud<pcl::PointXYZ>::Ptr& oCloud,
+    const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud,
+    const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& oCloud,
     float cell_size);
 
   /**

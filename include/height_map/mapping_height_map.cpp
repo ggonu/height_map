@@ -3,14 +3,14 @@
 #define DEBUG
 
 MappingHeightMap::MappingHeightMap(float cell_size)
-  : height_map_(cell_size), cell_size_(cell_size), height_map_cloud_(new pcl::PointCloud<pcl::PointXYZ>) {
+  : height_map_(cell_size), cell_size_(cell_size), height_map_cloud_(new pcl::PointCloud<pcl::PointXYZRGB>) {
 }
 
 MappingHeightMap::~MappingHeightMap() {
 }
 
-void MappingHeightMap::updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud) {
-  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+void MappingHeightMap::updateHeightMap(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud) {
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
   // Generate height map from the input point cloud
   height_map_.gridifyCloud(iCloud, temp_cloud, cell_size_);
@@ -33,10 +33,10 @@ void MappingHeightMap::updateHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr
   }
 }
 
-void MappingHeightMap::resetHeightMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& iCloud) {
+void MappingHeightMap::resetHeightMap(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud) {
   height_map_cloud_->clear();
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
   height_map_.gridifyCloud(iCloud, temp_cloud, cell_size_);
 
@@ -120,10 +120,28 @@ std::pair<Eigen::Vector3f, Eigen::Vector3f> MappingHeightMap::calculatePlaneProp
   pcl::compute3DCentroid(*height_map_cloud_, centroid);
 
   pcl::PCA<pcl::PointXYZ> pca;
-  pca.setInputCloud(height_map_cloud_);
+  pca.setInputCloud(height_map_cloud_); // height_map_cloud_
 
   Eigen::Matrix3f eigen_vectors = pca.getEigenVectors();
   Eigen::Vector3f plane_orientation = eigen_vectors.col(0);
 
   return  {centroid.head<3>(), plane_orientation};
+}
+
+std::map<uint32_t, pcl::PointCloud<pcl::PointXYZRGB>::Ptr> MappingHeightMap::segmentPlanes(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud) {
+  std::map<uint32_t, pcl::PointCloud<pcl::PointXYZRGB>::Ptr> segmented_planes;
+
+  for (const auto& point : iCloud->points) {
+    uint32_t rgb = (static_cast<uint32_t>(point.r) << 16) |
+                   (static_cast<uint32_t>(point.g) << 8) |
+                    static_cast<uint32_t>(point.b);
+
+    if (segmented_planes.find(rgb) == segmented_planes.end()) {
+      segmented_planes[rgb] = pcl::PointCloud<pcl::PointXYZRGB>::Ptr (new pcl::PointCloud<pcl::PointXYZRGB>);
+    }
+
+  segmented_planes[rgb]->points.push_back(point);
+  }
+
+  return segmented_planes;
 }

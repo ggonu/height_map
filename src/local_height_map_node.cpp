@@ -1,5 +1,8 @@
 #include <ros/ros.h>
 
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -10,58 +13,76 @@
 
 #include <height_map/mapping_height_map.hpp>
 
+
+/**
+ * Calculate and visualize the height map
+ * Calculates the normal of the plane
+ * Calculates the centroid of the plane
+ * Visualizes the height map as a point cloud
+ * Visualizes the plane as a marker
+ */
+
+
 MappingHeightMap* height_map;
 
+void publishMarkers(const ros::Publisher& marker_pub,
+                    const std::map<uint32_t, pcl::PointCloud<pcl::PointXYZRGB>::Ptr>& segmented_planes) {
+  int id = 0;
+  for (const auto& segment : segmented_planes) {
+    uint32_t rgb = segment.first;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = segment.second;
+
+    height_map->resetHeightMap(cloud);
+    auto [centroid, normal] = height_map->calculatePlaneProperties();
+
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = cloud->header.frame_id;
+    marker.header.stamp = ros::Time::now();
+    marker.ns = "plane_marker" + std::to_string(id);
+    marker.id = id++;
+    marker.type = visualization_msgs::Marker::CUBE;
+    marker.action = visualization_msgs::Marker::ADD;
+
+    marker.pose.position.x = centroid.x();
+    marker.pose.position.y = centroid.y();
+    marker.pose.position.z = centroid.z();
+
+    tf2::Vector3 normal_vector(normal.x(), normal.y(), normal.z());
+    tf2::Vector3 x_axis(1.0, 0.0, 0.0);
+    tf2::Vector3 rotation_axis = x_axis.cross(normal_vector);
+    double angle = x_axis.angle(normal_vector);
+    tf2::Quaternion quaternion;
+    quaternion.setRotation(rotation_axis, angle);
+
+    marker.pose.orientation.x = quaternion.x();
+    marker.pose.orientation.y = quaternion.y();
+    marker.pose.orientation.z = quaternion.z();
+    marker.pose.orientation.w = quaternion.w();
+
+    marker.scale.x = 1.0;
+    marker.scale.y = 1.0;
+    marker.scale.z = 0.01;
+
+    marker.color.r = ((rgb >> 16) & 0xFF) / 255.0;
+    marker.color.g = ((rgb >> 8) & 0xFF) / 255.0;
+    marker.color.b = (rgb & 0xFF) / 255.0;
+    marker.color.a = 0.8f;
+
+    marker_pub.publish(marker);
+  }
+}
+
 void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::fromROSMsg(*msg, *cloud);
 
-    if (!cloud->empty()) {
-        height_map->resetHeightMap(cloud);
-        height_map->fillHeightMapInteriors(); // TODO: Comment this line
-        auto height_map_cloud = height_map->getHeightMap();
+    auto segmented_planes = height_map->segmentPlanes(cloud);
 
-        sensor_msgs::PointCloud2 output;
-        pcl::toROSMsg(*height_map_cloud, output);
-        output.header = msg->header;
+    static ros::Publisher marker_pub = ros::NodeHandle().advertise<visualization_msgs::Marker>("/height_map/plane_markers", 1);
 
+    publishMarkers(marker_pub, segmented_planes);
 
-        visualization_msgs::MarkerArray marker_array;
-        int id = 0;
-
-        for (const auto& point : height_map_cloud->points) {
-            visualization_msgs::Marker marker;
-            marker.header.frame_id = msg->header.frame_id;
-            marker.header.stamp = ros::Time::now();
-            marker.ns = "plane_marker" + std::to_string(id);
-            marker.id = id++;
-            marker.type = visualization_msgs::Marker::CUBE;
-            marker.action = visualization_msgs::Marker::ADD;
-
-            marker.pose.position.x = point.x;
-            marker.pose.position.y = point.y;
-            marker.pose.position.z = point.z / 2.0;
-            marker.pose.orientation.w = 1.0;
-            marker.scale.x = height_map->getCellSize();
-            marker.scale.y = height_map->getCellSize();
-            marker.scale.z = point.z;
-
-            marker.color.r = 0.6f;
-            marker.color.g = 0.6f;
-            marker.color.b = 0.6f;
-            marker.color.a = 0.8f;
-
-            marker_array.markers.push_back(marker);
-        }
-
-        static ros::Publisher height_map_pub = ros::NodeHandle().advertise<sensor_msgs::PointCloud2>("/height_map/recieved_cloud", 1);
-        height_map_pub.publish(output);
-
-        static ros::Publisher marker_pub = ros::NodeHandle().advertise<visualization_msgs::MarkerArray>("/height_map/plane_markers", 1);
-        marker_pub.publish(marker_array);
-    } else {
-        ROS_WARN("Input point cloud is empty. Cannot update height map.");
-    }
+    ROS_INFO("Published markers for %lu planes", segmented_planes.size());
 }
 
 int main(int argc, char** argv) {
