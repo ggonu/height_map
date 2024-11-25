@@ -8,6 +8,7 @@
 #include <pcl/point_types.h>
 #include <pcl/common/common.h>
 #include <pcl/features/normal_3d.h>
+#include <pcl/surface/concave_hull.h>
 
 #include <Eigen/Dense>
 
@@ -52,7 +53,7 @@ class MappingHeightMap {
    * @brief Get the generated 2.5D height map.
    * @return The output height map as a point cloud.
    */
-  pcl::PointCloud<pcl::PointXYZ>::Ptr getHeightMap() const;
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr getHeightMap() const;
 
   /**
    * @brief Calculate the properties of the plane.
@@ -62,10 +63,20 @@ class MappingHeightMap {
 
   std::map<uint32_t, pcl::PointCloud<pcl::PointXYZRGB>::Ptr> segmentPlanes(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud);
 
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr generateConcaveHull(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud, float alpha);
+
+  std::vector<Eigen::Vector2f> projectTo2D(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iHull);
+
+  bool isPointInsidePolygon(const Eigen::Vector2f& point, const std::vector<Eigen::Vector2f>& polygon);
+
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr fillConcaveHull(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud, const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iHull, float resolution);
+
  private:
   HeightMap height_map_;
+
   float cell_size_;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr height_map_cloud_;
+
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr height_map_cloud_;
 };
 
 

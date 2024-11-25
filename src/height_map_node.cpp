@@ -67,7 +67,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& input)
 */
 
 void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
   pcl::fromROSMsg(*msg, *cloud);
 
   mapping_height_map.updateHeightMap(cloud);
@@ -76,7 +76,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
   visualization_msgs::MarkerArray marker_array;
   int id = 0;
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr height_map_cloud = mapping_height_map.getHeightMap();
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr height_map_cloud = mapping_height_map.getHeightMap();
 
   for (const auto& point : height_map_cloud->points) {
     visualization_msgs::Marker marker;
