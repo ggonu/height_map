@@ -5,6 +5,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   visualization_msgs
+  grid_map_ros
+  grid_map_msgs
+  grid_map_visualization
   pcl_ros
   pcl_conversions
 )
@@ -14,7 +17,7 @@ find_package(PCL REQUIRED)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES height_map
- CATKIN_DEPENDS roscpp pcl_conversions pcl_ros sensor_msgs visualization_msgs
+ CATKIN_DEPENDS roscpp pcl_conversions pcl_ros sensor_msgs visualization_msgs grid_map_ros grid_map_msgs grid_map_visualization
  DEPENDS PCL
 )
 
@@ -53,14 +56,28 @@ target_link_libraries(height_map_node
   ${PCL_LIBRARIES}
 )
 
-add_executable(local_height_map_node src/local_height_map_node.cpp)
+add_executable(local_plane_map_node src/local_plane_map_node.cpp)
 target_link_libraries(local_height_map_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
 
+
+add_executable(local_height_map_node src/local_height_map_node.cpp)
+target_link_libraries(local_height_map_nodes
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
 install(TARGETS ${PROJECT_NAME} height_map_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS ${PROJECT_NAME} local_plane_map_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
