@@ -139,7 +139,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
 }
 
 int main(int argc, char** argv) {
-    ros::init(argc, argv, "local_height_map_node");
+    ros::init(argc, argv, "local_plane_map_node");
     ros::NodeHandle nh("~");
 
     float cell_size;
@@ -149,12 +149,12 @@ int main(int argc, char** argv) {
 
     ros::Subscriber sub = nh.subscribe("/plane_seg/hull_cloud", 1, pointCloudCallback);
 
-    ros::Rate rate(1.0);
-    while (ros::ok()) {
-        ros::spinOnce();
-        rate.sleep();
-    }
-    // ros::spin();
+    // ros::Rate rate(1.0);
+    // while (ros::ok()) {
+    //     ros::spinOnce();
+    //     rate.sleep();
+    // }
+    ros::spin();
 
     delete height_map;
     return 0;

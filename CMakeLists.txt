@@ -8,6 +8,9 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_ros
   grid_map_msgs
   grid_map_visualization
+  tf2
+  tf2_ros
+  geometry_msgs
   pcl_ros
   pcl_conversions
 )
@@ -17,7 +20,7 @@ find_package(PCL REQUIRED)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES height_map
- CATKIN_DEPENDS roscpp pcl_conversions pcl_ros sensor_msgs visualization_msgs grid_map_ros grid_map_msgs grid_map_visualization
+ CATKIN_DEPENDS roscpp pcl_conversions pcl_ros sensor_msgs visualization_msgs grid_map_ros grid_map_msgs grid_map_visualization tf2 tf2_ros geometry_msgs
  DEPENDS PCL
 )
 
@@ -57,7 +60,7 @@ target_link_libraries(height_map_node
 )
 
 add_executable(local_plane_map_node src/local_plane_map_node.cpp)
-target_link_libraries(local_height_map_node
+target_link_libraries(local_plane_map_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
@@ -65,11 +68,17 @@ target_link_libraries(local_height_map_node
 
 
 add_executable(local_height_map_node src/local_height_map_node.cpp)
-target_link_libraries(local_height_map_nodes
+target_link_libraries(local_height_map_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+
+add_executable(cam_tf_bc src/cam_tf_bc.cpp)
+target_link_libraries(cam_tf_bc
+  ${catkin_LIBRARIES}
+)
+
 
 install(TARGETS ${PROJECT_NAME} height_map_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
