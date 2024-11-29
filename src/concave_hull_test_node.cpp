@@ -42,22 +42,6 @@ void clearPreviousMarkers(const ros::Publisher& marker_pub, const std::string &f
   marker_pub.publish(delete_markers);
 }
 
-void getMinMax2D(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iCloud, pcl::PointXYZRGB& min_pt, pcl::PointXYZRGB& max_pt) {
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  pcl::copyPointCloud(*iCloud, *cloud);
-
-  // TODO: Implement (XY 평면에 투영했을 때 원점과 가장 멀리 떨어진 점을 찾기)
-  // TODO: 기준을 어떻게 잡을 것인가?
-  for (auto& point : cloud->points) {
-    if (point.x < min_pt.x) {
-      min_pt.x = point.x;
-    }
-    if (point.y < min_pt.y) {
-      min_pt.y = point.y;
-    }
-  }
-}
-
 void publishMarkers(const ros::Publisher& marker_pub,
                     const std::map<uint32_t, pcl::PointCloud<pcl::PointXYZRGB>::Ptr>& segmented_planes,
                     const std::string &frame) {
@@ -141,16 +125,25 @@ void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
       pcl::PointCloud<pcl::PointXYZRGB>::Ptr cCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
       pcl::copyPointCloud(*segment.second, *cCloud);
 
-      auto hull = height_map->generateConcaveHull(cCloud, 0.3); // 0.1
-      auto filled_hull = height_map->fillConcaveHull(cCloud, hull, 0.05);
-
+      auto hull = height_map->generateConcaveHull(cCloud, 0.1);
       sensor_msgs::PointCloud2 fMsg;
       pcl::toROSMsg(*segment.second, fMsg);
       fMsg.header.frame_id = msg->header.frame_id; // "camera_depth_optical_frame";
       fMsg.header.stamp = ros::Time::now();
       plane_pub.publish(fMsg);
 
+    //   auto filled_hull = height_map->fillConcaveHull(cCloud, hull, 0.05);
+
+    //   sensor_msgs::PointCloud2 fMsg;
+    //   pcl::toROSMsg(*segment.second, fMsg);
+    //   fMsg.header.frame_id = msg->header.frame_id; // "camera_depth_optical_frame";
+    //   fMsg.header.stamp = ros::Time::now();
+    //   plane_pub.publish(fMsg);
+
       ROS_INFO("  -  Published plane cloud.");
+      for (const auto& point : hull->points) {
+        std::cout << "Points in the hull: " << point.x << ", " << point.y << ", " << point.z << std::endl;
+      }
     }
 }
 
@@ -163,7 +156,7 @@ int main(int argc, char** argv) {
 
     height_map = new MappingHeightMap(cell_size);
 
-    ros::Subscriber sub = nh.subscribe("/height_map/sorted_hull_cloud", 10, pointCloudCallback); // /plane_seg/hull_cloud
+    ros::Subscriber sub = nh.subscribe("/height_map/sorted_hull_cloud", 1, pointCloudCallback);
 
     // ros::Rate rate(1.0);
     // while (ros::ok()) {
@@ -175,4 +168,3 @@ int main(int argc, char** argv) {
     delete height_map;
     return 0;
 }
-

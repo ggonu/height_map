@@ -66,7 +66,6 @@ target_link_libraries(local_plane_map_node
   ${PCL_LIBRARIES}
 )
 
-
 add_executable(local_height_map_node src/local_height_map_node.cpp)
 target_link_libraries(local_height_map_node
   ${PROJECT_NAME}
@@ -77,6 +76,19 @@ target_link_libraries(local_height_map_node
 add_executable(cam_tf_bc src/cam_tf_bc.cpp)
 target_link_libraries(cam_tf_bc
   ${catkin_LIBRARIES}
+)
+
+add_executable(debug_node src/debug_node.cpp)
+target_link_libraries(debug_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+add_executable(arrange_hull_points_node src/arrange_hull_points_node.cpp)
+target_link_libraries(arrange_hull_points_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
 
@@ -99,6 +111,18 @@ install(TARGETS ${PROJECT_NAME} local_height_map_node
 )
 
 install(TARGETS ${PROJECT_NAME} height_map_test_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS ${PROJECT_NAME} debug_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS ${PROJECT_NAME} arrange_hull_points_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
