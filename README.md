@@ -1,6 +1,12 @@
 # height_map
 ROS height_map package (Tested on ROS Noetic)
 
+## Dependencies
+```
+sudo apt-get install ros-noetic-grid-map ros-noetic-grid-map-visualization
+tf2, etc,.
+```
+
 # Running Test.cpp
 ```
 rosrun height_map height_map_test_node
