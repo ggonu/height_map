@@ -46,6 +46,8 @@ public:
     float dx = target.x - ref.x;
     float dy = target.y - ref.y;
     return std::atan2(dy, dx);
+    // TODO: Check if the angle is in the range of [0, 2*PI]
+    // TODO: Check if the angles are same, then compare the distance
   }
 
   std::vector<HullP> arrange(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& iHull) const {

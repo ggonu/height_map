@@ -84,8 +84,16 @@ target_link_libraries(debug_node
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+
 add_executable(arrange_hull_points_node src/arrange_hull_points_node.cpp)
 target_link_libraries(arrange_hull_points_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
+add_executable(testing_height_interpolation_node src/testing_height_interpolation_node.cpp)
+target_link_libraries(testing_height_interpolation_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
@@ -123,6 +131,12 @@ install(TARGETS ${PROJECT_NAME} debug_node
 )
 
 install(TARGETS ${PROJECT_NAME} arrange_hull_points_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS ${PROJECT_NAME} testing_height_interpolation_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
